@@ -1,0 +1,17 @@
+---
+- name: ensure iam group is created
+  iam_group:
+    # Fixed values
+    state: present
+    # Required values
+    name: "{{ iam.name }}"
+    # Optional values
+    region: "{{ iam.region | default(aws_iam_default_region | default(omit)) }}"
+    aws_access_key: "{{ lookup('ENV', 'AWS_ACCESS_KEY') | default(omit) }}"
+    aws_secret_key: "{{ lookup('ENV', 'AWS_SECRET_KEY') | default(omit) }}"
+    security_token: "{{ lookup('ENV', 'AWS_SECURITY_TOKEN') | default(omit) }}"
+    profile: "{{ aws_iam_profile | default(omit) }}"
+    managed_policy: "{{ iam.managed_policy | default(omit) }}"
+    purge_policy: "{{ iam.purge_policy | default(omit) }}"
+    purge_users: "{{ iam.purge_users | default(omit) }}"
+    users: "{{ iam.users | default(omit) }}"

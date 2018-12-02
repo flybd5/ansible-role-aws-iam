@@ -1,0 +1,14 @@
+---
+# defaults file for ansible-role-aws-iam
+
+##
+### Sane defaults
+###
+
+aws_iam_default_region: eu-central-1
+
+aws_iam_iamgroup: []
+aws_iam_iamuser: []
+aws_iam_iamrole: []
+aws_iam_iampolicy: []
+aws_iam_iamsamlprovider: []

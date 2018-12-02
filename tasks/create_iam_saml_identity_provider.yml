@@ -1,0 +1,34 @@
+---
+# First we get the account number
+- name: create or update a saml provider
+  command: >
+    aws sts get-caller-identity --output text --query 'Account'
+    {% if aws_iam_profile %}--profile {{ aws_iam_profile }}{% endif %}
+    --region {{ iam.region | default(aws_iam_default_region) }}
+  register: aws_account_number
+  failed_when: aws_account_number.rc > 0
+# Then we build an ARN with the account number and the specified provider name
+- name: define the provider ARN with the user number
+  set_fact:
+    provider_arn: "arn:aws:iam::{{ aws_account_number.stdout }}:saml-provider/{{ iam.name }}"
+# Then we check to see if that ARN already exists
+- name: check if identity provider already exists
+  command: >
+    aws iam get-saml-provider {% if aws_iam_profile %}--profile {{ aws_iam_profile }}{% endif %}
+    --region {{ iam.region | default(aws_iam_default_region) }} --saml-provider-arn {{ provider_arn }}
+  register: get_saml_result
+  ignore_errors: true
+# If the previous call to the AWS CLI failed then the provider needs to be created
+- name: ensure iam saml identity provider is created
+  command: >
+    aws iam create-saml-provider --saml-metadata-document {{ iam.metadata_document }}
+    --name {{ iam.name }} {% if aws_iam_profile %}--profile {{ aws_iam_profile }}{% endif %}
+    --region {{ iam.region | default(aws_iam_default_region) }}
+  when: get_saml_result.rc > 0
+# If the previous call to the AWS CLI was successful then the provider needs to be updated instead.
+- name: ensure iam saml identity provider is updated
+  command: >
+    aws iam update-saml-provider --saml-metadata-document {{ iam.metadata_document }}
+    --saml-provider-arn {{ provider_arn }} {% if aws_iam_profile %}--profile {{ aws_iam_profile }}{% endif %}
+    --region "{{ iam.region | default(aws_iam_default_region) }}"
+  when: get_saml_result.rc == 0

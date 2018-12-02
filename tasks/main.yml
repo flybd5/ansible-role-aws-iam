@@ -1,0 +1,31 @@
+---
+# tasks file for ansible-role-aws-iam
+
+###
+### Main entrypoint
+###
+- include_tasks: create_iam_user.yml
+  loop_control:
+    loop_var: iam
+  with_items:
+    - "{{ aws_iam_iamuser }}"
+- include_tasks: create_iam_role.yml
+  loop_control:
+    loop_var: iam
+  with_items:
+    - "{{ aws_iam_iamrole }}"
+- include_tasks: create_iam_group.yml
+  loop_control:
+    loop_var: iam
+  with_items:
+    - "{{ aws_iam_iamgroup }}"
+- include_tasks: create_iam_policy.yml
+  loop_control:
+    loop_var: iam
+  with_items:
+    - "{{ aws_iam_iampolicy }}"
+- include_tasks: create_iam_saml_identity_provider.yml
+  loop_control:
+    loop_var: iam
+  with_items:
+    - "{{ aws_iam_iamsamlprovider }}"
